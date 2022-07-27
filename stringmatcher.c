@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+// global variables
 int counter = 0;
 int lenPattern = 0;
 
 char alphabet[256];
-int alphaT[256];
+int HPBC[256];
 char pattern[256];
 
+// return the length of a string
 int stringLnegth(char *str)
 {
     int i = 0;
@@ -17,7 +19,8 @@ int stringLnegth(char *str)
     return i;
 }
 
-char *duplicater(char *str)
+// make a copy of a string
+char *duplicator(char *str)
 {
     int n = stringLnegth(str);
     char *temp = malloc((n + 1) * sizeof(char));
@@ -30,6 +33,7 @@ char *duplicater(char *str)
     return temp;
 }
 
+// print string
 void printLine(char *name)
 {
     int i = 0;
@@ -41,17 +45,19 @@ void printLine(char *name)
     printf("\n");
 }
 
-int HpIndexOf(char k)
+// return hpbc value of the given character
+int HpbcIndexOf(char k)
 {
     int i = 0;
     while (*(alphabet + i) != '\0')
         if (*(alphabet + i) == k)
-            return *(alphaT + i);
+            return *(HPBC + i);
         else
             i++;
     return lenPattern;
 }
 
+// convert every character of the string to uppercase
 void capitalize(char *str)
 {
     int i = 0;
@@ -62,6 +68,7 @@ void capitalize(char *str)
     }
 }
 
+// read a line from the file
 char *lineReader(FILE *fp)
 {
     int n = 0;
@@ -79,6 +86,7 @@ char *lineReader(FILE *fp)
     return c;
 }
 
+// get distint craracters of the pattern
 void getAlpha()
 {
     int n = 0;
@@ -103,16 +111,17 @@ void getAlpha()
     }
 }
 
-void getAlphaT()
+// calculate hpbc table
+void getHPBC()
 {
     int i = 0;
     while (*(alphabet + i) != '\0')
     {
-        *(alphaT + i) = lenPattern;
+        *(HPBC + i) = lenPattern;
         for (int j = lenPattern - 2; j >= 0; j--)
             if (*(pattern + j) == *(alphabet + i))
             {
-                *(alphaT + i) = lenPattern - j - 1;
+                *(HPBC + i) = lenPattern - j - 1;
                 break;
             }
         i++;
@@ -134,7 +143,7 @@ int horspool(char *text)
         if (k < 0)
             tempCount++;
 
-        pos = pos + HpIndexOf(*(text + pos + lenPattern - 1));
+        pos = pos + HpbcIndexOf(*(text + pos + lenPattern - 1));
     }
     free(text);
     counter = counter + tempCount;
@@ -146,24 +155,28 @@ int horspool(char *text)
 
 int main()
 {
-    FILE *fp = fopen("modules2.txt", "r");
+    // open file
+    FILE *fp = fopen("modules.txt", "r");
 
     char *text = NULL;
     char *Dtext = NULL;
     int n;
 
+    // input pattern
     printf("enter pattern : ");
     scanf(" %s", pattern);
     capitalize(pattern);
     lenPattern = stringLnegth(pattern);
 
+    // preprocessing
     getAlpha();
-    getAlphaT();
+    getHPBC();
 
+    // string matching
     while (feof(fp) == 0)
     {
         text = lineReader(fp);
-        Dtext = duplicater(text);
+        Dtext = duplicator(text);
         capitalize(Dtext);
         if (horspool(Dtext))
             printLine(text);
